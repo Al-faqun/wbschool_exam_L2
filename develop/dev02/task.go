@@ -35,36 +35,45 @@ func unpack(input string) (string, error) {
 	}
 
 	var resultBuffer strings.Builder // обработанная строка
-	var let rune                     // руна, которая ожидает множитель
+	var prev rune                    // руна, которая ожидает множитель
 	var numBuffer strings.Builder    // буффер множителя
+	var escapeMode bool
 
-	for _, r := range input {
-		if isNumber(r) {
-			if let == 0 {
-				return "", fmt.Errorf("String must begin with a letter")
+	fmt.Printf("input: %s\n", input)
+
+	// todo: подумай, какой инпут нужен для определения действия для n-го символа в строке (сколько предыдущих символов нужно держать в памяти),
+	// и напиши красивую функцию
+	for _, cur := range input {
+		if !escapeMode && prev == '\\' && isSpecial(cur) {
+			prev = cur
+			escapeMode = true
+			// todo: не попасть сюда после предыдущего ифа
+		} else if isNumber(cur) {
+			if prev == 0 {
+				return "", fmt.Errorf("String must begin with a letter") // todo: убрать дублирование ошибки?
 			}
-			// записываем множитель
-			numBuffer.WriteRune(r)
-		} else if let == 0 {
+			numBuffer.WriteRune(cur)
+		} else if prev == 0 {
 			// записываем текущую руну в буффер
-			let = r
+			prev = cur
 		} else {
 			// в буффере уже есть руна, и текущая руна не число - значит можем спокойно записать буффер в строку
-			err := addRune(let, &numBuffer, &resultBuffer)
+			err := addRune(prev, &numBuffer, &resultBuffer)
 
 			if err != nil {
-				return "", nil
+				return "", err
 			}
 
+			escapeMode = false
 			// запоминаем следующую руну
-			let = r
+			prev = cur
 		}
 	}
 
-	if let != 0 {
-		err := addRune(let, &numBuffer, &resultBuffer)
+	if prev != 0 {
+		err := addRune(prev, &numBuffer, &resultBuffer)
 		if err != nil {
-			return "", nil
+			return "", err
 		}
 	}
 
@@ -73,6 +82,10 @@ func unpack(input string) (string, error) {
 
 func isNumber(r rune) bool {
 	return r >= 0x30 && r <= 0x39
+}
+
+func isSpecial(r rune) bool {
+	return isNumber(r) || r == '\\'
 }
 
 func addRune(let rune, numBuffer, resultBuffer *strings.Builder) error {
@@ -91,7 +104,12 @@ func addRune(let rune, numBuffer, resultBuffer *strings.Builder) error {
 		(*numBuffer).Reset()
 	}
 
+	if (*resultBuffer).Len() == 0 && isNumber(let) {
+		return fmt.Errorf("String must begin with a letter")
+	}
+
 	for i := 0; i < num; i++ {
+		fmt.Printf("Writing rune %q\n", let)
 		(*resultBuffer).WriteRune(let)
 	}
 
