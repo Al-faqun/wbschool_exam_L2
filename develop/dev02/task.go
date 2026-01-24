@@ -20,12 +20,30 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Fprintf(os.Stderr, "1 argument is required")
+		os.Exit(1)
+	}
+	if len(os.Args) > 2 {
+		fmt.Fprintf(os.Stderr, "Only 1 argument is allowed")
+		os.Exit(1)
+	}
 
+	input := os.Args[1]
+	result, err := unpack(input)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error during unpacking the input: %s", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("%s\n", result)
 }
 
 /** Ограничение: функция не работает корректно с текстом, состоящим из более чем одной руны (например, à)*/
@@ -39,18 +57,13 @@ func unpack(input string) (string, error) {
 	var numBuffer strings.Builder    // буффер множителя
 	var escapeMode bool
 
-	fmt.Printf("input: %s\n", input)
-
-	// todo: подумай, какой инпут нужен для определения действия для n-го символа в строке (сколько предыдущих символов нужно держать в памяти),
-	// и напиши красивую функцию
 	for _, cur := range input {
 		if !escapeMode && prev == '\\' && isSpecial(cur) {
 			prev = cur
 			escapeMode = true
-			// todo: не попасть сюда после предыдущего ифа
 		} else if isNumber(cur) {
 			if prev == 0 {
-				return "", fmt.Errorf("String must begin with a letter") // todo: убрать дублирование ошибки?
+				return "", fmt.Errorf("String must begin with a letter")
 			}
 			numBuffer.WriteRune(cur)
 		} else if prev == 0 {
@@ -109,7 +122,6 @@ func addRune(let rune, numBuffer, resultBuffer *strings.Builder) error {
 	}
 
 	for i := 0; i < num; i++ {
-		fmt.Printf("Writing rune %q\n", let)
 		(*resultBuffer).WriteRune(let)
 	}
 
