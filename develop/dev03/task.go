@@ -28,3 +28,14 @@ package main
 func main() {
 
 }
+
+func sort(input string, options SortOptions) (string, error) {
+
+}
+
+type SortOptions struct {
+	col int
+	isNum bool
+	isRev bool
+	isRemDub bool
+}

@@ -10,13 +10,36 @@ func TestUnpackValid(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{name: "Empty", input: "", expected: ""},
-		{name: "Nothing to unpack", input: "Simple string", expected: "Simple string"},
-		{name: "Simple unpack", input: "Unpack me dad2y plz3", expected: "Unpack me daddy plzzz"},
-		{name: "Multirune character", input: "e\u03015", expected: "e\u0301\u0301\u0301\u0301\u0301"},
-		{name: "Escaped #1", input: "qwe\\4\\5", expected: "qwe45"},
-		{name: "Escaped #2", input: "qwe\\14", expected: "qwe1111"},
-		{name: "Escaped #3", input: "qwe\\\\5", expected: "qwe\\\\\\\\\\"},
+		{
+			name: "Default alpha sort",
+			options: SortOptions{},
+			input: "MX Linux\nManjaro\nMint\nelementary\nUbuntu",
+			expected: "elementary\nManjaro\nMint\nMX Linux\nUbuntu"
+		},
+		{
+			name: "Numeric sort",
+			options: SortOptions{},
+			input: "1\n10\n2\n21\n23\n3\n432\n5\n5\n60",
+			expected: "1\n2\n3\n5\n5\n10\n21\n23\n60\n432" // todo: check how linux sort -n reacts to text 
+		},
+		{
+			name: "Reverse sort",
+			options: SortOptions{},
+			input: "1.MX Linux\n4.elementary\n2.Manjaro\n5.Ubuntu\n3.Mint",
+			expected: "4.elementary\n1.MX Linux\n2.Manjaro\n5.Ubuntu\n3.Mint"
+		},
+		{
+			name: "Remove duplicates & sort",
+			options: SortOptions{},
+			input: "1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu\n1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu",
+			expected: "1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu"
+		},
+		// {
+		// 	name: "Month sort",
+		// 	options: SortOptions{}
+		// 	input: "March\nFeb\nFebruary\nApril\nAugust\nJuly\nJune\nNovember\nOctober\nDecember\nMay\nSeptember",
+		// 	expected: "Jan\nFeb\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+		// },
 	}
 
 	for _, data := range dataValid {
