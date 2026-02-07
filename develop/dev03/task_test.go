@@ -18,6 +18,12 @@ func TestUnpackValid(t *testing.T) {
 			expected: "elementary\nManjaro\nMint\nMX Linux\nUbuntu",
 		},
 		{
+			name:     "Column sort",
+			options:  SortOptions{col: 2},
+			input:    "Manjaro 300\nMint 400\nNoSecondColumn\nelementary 200\nUbuntu 100",
+			expected: "NoSecondColumn\nUbuntu 100\nelementary 200\nManjaro 300\nMint 400",
+		},
+		{
 			name:     "Numeric sort",
 			options:  SortOptions{isNum: true},
 			input:    "1\n10\n2\n21\n23\n3\n432\n5\n5\n60\nUbuntu\nelementary",
