@@ -1,0 +1,17 @@
+1
+0
+10
+ 10
+-10
+10ab
+10ac
+10 0
+100
+ elementary
+2
+21
+23
+3
+432
+Ubuntu
+elementary

@@ -26,8 +26,8 @@ func TestUnpackValid(t *testing.T) {
 		{
 			name:     "Numeric sort",
 			options:  SortOptions{isNum: true},
-			input:    "1\n10\n2\n21\n23\n3\n432\n5\n5\n60\nUbuntu\nelementary",
-			expected: "elementary\nUbuntu\n1\n2\n3\n5\n5\n10\n21\n23\n60\n432",
+			input:    "1\n0\n10\n 10\n-10\n10ab\n10ac\n10 0\n100\n elementary\n2\n21\n23\n3\n432\nUbuntu\nelementary",
+			expected: "-10\n0\nelementary\nUbuntu\n1\n2\n3\n 10\n10\n10 0\n10ab\n10ac\n21\n23\n100\n432",
 		},
 		{
 			name:     "Reverse sort",
@@ -36,17 +36,18 @@ func TestUnpackValid(t *testing.T) {
 			expected: "4.elementary\n1.MX Linux\n2.Manjaro\n5.Ubuntu\n3.Mint",
 		},
 		{
+			name:     "Reverse column sort",
+			options:  SortOptions{isRev: true, col: 2},
+			input:    "Manjaro 300\nMint 400\nNoSecondColumn\nelementary 200\nUbuntu 100",
+			expected: "Mint 400\nManjaro 300\nelementary 200\nUbuntu 100\nNoSecondColumn",
+		},
+		// todo: add column numeric sort
+		{
 			name:     "Remove duplicates & sort",
 			options:  SortOptions{isRemDub: true},
 			input:    "1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu\n1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu",
 			expected: "1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu",
 		},
-		// {
-		// 	name: "Month sort",
-		// 	options: SortOptions{}
-		// 	input: "March\nFeb\nFebruary\nApril\nAugust\nJuly\nJune\nNovember\nOctober\nDecember\nMay\nSeptember",
-		// 	expected: "Jan\nFeb\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
-		// },
 	}
 
 	for _, data := range dataValid {
