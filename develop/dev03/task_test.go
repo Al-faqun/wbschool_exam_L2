@@ -41,10 +41,15 @@ func TestUnpackValid(t *testing.T) {
 			input:    "Manjaro 300\nMint 400\nNoSecondColumn\nelementary 200\nUbuntu 100",
 			expected: "Mint 400\nManjaro 300\nelementary 200\nUbuntu 100\nNoSecondColumn",
 		},
-		// todo: add column numeric sort
 		{
 			name:     "Remove duplicates & sort",
 			options:  SortOptions{isRemDub: true},
+			input:    "1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu\n1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu",
+			expected: "1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu",
+		},
+		{
+			name:     "Remove duplicates & sort by column",
+			options:  SortOptions{isRemDub: true, col: 1},
 			input:    "1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu\n1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu",
 			expected: "1.MX Linux\n2.Manjaro\n3.Mint\n4.elementary\n5.Ubuntu",
 		},
