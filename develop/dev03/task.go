@@ -47,7 +47,7 @@ const SEP = "\n"
 * 1. k - получаем значения из колонки
 * 2. n - сортируем выбранные значения как числа
 * 3. r - какой бы алгоритм мы не выбрали, применяем к нему реверс
-* 4. u - убираем дубликаты после сортировки
+* 4. u - убираем дубликаты после сортировки (применяем фильтр к сортируемому значению)
 *
 /* Does not support windows separators for simplicity
 */
@@ -72,6 +72,12 @@ func sort(input string, options SortOptions) (string, error) {
 
 	if !slices.IsSortedFunc(sortables, sortFunc) {
 		slices.SortStableFunc(sortables, sortFunc)
+	}
+
+	if options.isRemDub == true {
+		sortables = slices.CompactFunc(sortables, func(a *Sortable, b *Sortable) bool {
+			return strings.EqualFold(a.source, b.source)
+		})
 	}
 
 	return joinSortables(sortables), nil

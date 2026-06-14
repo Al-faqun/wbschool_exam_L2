@@ -33,7 +33,7 @@ func TestUnpackValid(t *testing.T) {
 			name:     "Reverse sort",
 			options:  SortOptions{isRev: true},
 			input:    "1.MX Linux\n4.elementary\n2.Manjaro\n5.Ubuntu\n3.Mint",
-			expected: "4.elementary\n1.MX Linux\n2.Manjaro\n5.Ubuntu\n3.Mint",
+			expected: "5.Ubuntu\n4.elementary\n3.Mint\n2.Manjaro\n1.MX Linux",
 		},
 		{
 			name:     "Reverse column sort",

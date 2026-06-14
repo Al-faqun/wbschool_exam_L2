@@ -1,0 +1,6 @@
+Manjaro 300
+Arch 100
+Mint 400
+NoSecondColumn
+elementary 200
+Ubuntu -100
