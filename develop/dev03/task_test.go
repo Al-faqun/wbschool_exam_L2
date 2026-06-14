@@ -26,8 +26,8 @@ func TestUnpackValid(t *testing.T) {
 		{
 			name:     "Numeric sort",
 			options:  SortOptions{isNum: true},
-			input:    "1\n0\n10\n 10\n-10\n10ab\n10ac\n10 0\n100\n elementary\n2\n21\n23\n3\n432\nUbuntu\nelementary",
-			expected: "-10\n0\n elementary\nelementary\nUbuntu\n1\n2\n3\n 10\n10\n10 0\n10ab\n10ac\n21\n23\n100\n432",
+			input:    "1\n0\n10\n 10\n-10\n10ab\n10ac\n10 0\n100\n21.6789\n elementary\n2\n21.5\n23\n3\n432\nUbuntu\nelementary",
+			expected: "-10\n0\n elementary\nelementary\nUbuntu\n1\n2\n3\n 10\n10\n10 0\n10ab\n10ac\n21.5\n21.6789\n23\n100\n432",
 		},
 		{
 			name:     "Reverse sort",

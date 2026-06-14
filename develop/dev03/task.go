@@ -52,7 +52,10 @@ const SEP = "\n"
 /* Does not support windows separators for simplicity
 */
 func main() {
-
+	// todo parse flags
+	// read file
+	// sort
+	// output result to stdout
 }
 
 func sort(input string, options SortOptions) (string, error) {
@@ -106,7 +109,7 @@ func prepare(lines []string, options SortOptions) ([]*Sortable, error) {
 	}
 
 	if options.isNum == true {
-		re, err := regexp.Compile(`^\s*(-?\d+)`)
+		re, err := regexp.Compile(`^\s*(-?\d[\d.]*)`)
 		if err != nil {
 			return nil, err
 		}
@@ -165,21 +168,21 @@ func defSort(a string, b string, col *collate.Collator) int {
 // Whitespace at the start of the string is ignored.
 // Decimals are not supported.
 func numSort(a *Sortable, b *Sortable, col *collate.Collator) int {
-	var aNum, bNum int
+	var aNum, bNum float64
 	var err error
 
 	emptyA := len(a.value) == 0
 	emptyB := len(b.value) == 0
 
 	if !emptyA {
-		aNum, err = strconv.Atoi(a.value)
+		aNum, err = strconv.ParseFloat(a.value, 64)
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	if !emptyB {
-		bNum, err = strconv.Atoi(b.value)
+		bNum, err = strconv.ParseFloat(b.value, 64)
 		if err != nil {
 			panic(err)
 		}
