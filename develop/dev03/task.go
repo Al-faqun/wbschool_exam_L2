@@ -7,8 +7,6 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"unicode"
-	"unicode/utf8"
 )
 
 /*
@@ -102,10 +100,6 @@ func prepare(lines []string, options SortOptions) ([]*Sortable, error) {
 	}
 
 	if options.isNum == true {
-		// Sorts strings beginning with numbers numerically (i.e. 10 < 100)
-		// strings not beginning with numbers and text after numbers is sorted alphabetically
-		// and are treated as 0 (placed after 0 and before the next number).
-		// Decimals are not supported.
 		re, err := regexp.Compile(`^\s*(-?\d+)`)
 		if err != nil {
 			return nil, err
@@ -116,7 +110,7 @@ func prepare(lines []string, options SortOptions) ([]*Sortable, error) {
 			if matches != nil {
 				sortable.value = matches[1]
 			} else {
-				sortable.value = sortable.source
+				sortable.value = ""
 			}
 		}
 	}
@@ -124,76 +118,100 @@ func prepare(lines []string, options SortOptions) ([]*Sortable, error) {
 	return sortables, nil
 }
 
+// For ascending sort return
+// -1 when a < b,
+// 1 when a > b
+// and zero when a == b or a and b are incomparable in the sense of a strict weak ordering.
 func getSortFunc(options SortOptions, col *collate.Collator) (func(*Sortable, *Sortable) int, error) {
-	var innerFunc func(a string, b string, col *collate.Collator) int
+	var innerFunc func(a *Sortable, b *Sortable, col *collate.Collator) int
 	var sortFunc func(a *Sortable, b *Sortable) int
 
 	if options.isNum == true {
 		innerFunc = numSort
 	} else {
-		innerFunc = defSort
+		innerFunc = func(a *Sortable, b *Sortable, col *collate.Collator) int {
+			return defSort(a.value, b.value, col)
+		}
 	}
 
 	if options.isRev {
 		sortFunc = func(a *Sortable, b *Sortable) int {
-			return innerFunc(b.value, a.value, col)
+			return innerFunc(b, a, col)
 		}
 	} else {
 		sortFunc = func(a *Sortable, b *Sortable) int {
-			return innerFunc(a.value, b.value, col)
+			return innerFunc(a, b, col)
 		}
 	}
 
 	return sortFunc, nil
 }
 
-// todo: reverse flag
 // returns 0 if a == b, -1 if a < b, and +1 if a > b
 func defSort(a string, b string, col *collate.Collator) int {
 	// strings.Compare doesn't work, as it does not respect language rules
 	return col.CompareString(a, b)
 }
 
-func numSort(a string, b string, col *collate.Collator) int {
-	// string a or b is empty?
-	if len(a) == 0 {
-		a = "0"
-	}
-	if len(b) == 0 {
-		b = "0"
+// Sorts strings beginning with numbers numerically (i.e. 10 < 100)
+// strings not beginning with numbers and text after numbers are sorted alphabetically,
+// and are treated as 0 (placed after 0 and before the next number).
+// Whitespace at the start of the string is ignored.
+// Decimals are not supported.
+func numSort(a *Sortable, b *Sortable, col *collate.Collator) int {
+	var aNum, bNum int
+	var err error
+
+	emptyA := len(a.value) == 0
+	emptyB := len(b.value) == 0
+
+	if !emptyA {
+		aNum, err = strconv.Atoi(a.value)
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	firstRuneA, _ := utf8.DecodeRuneInString(a)
-	firstRuneB, _ := utf8.DecodeRuneInString(b)
+	if !emptyB {
+		bNum, err = strconv.Atoi(b.value)
+		if err != nil {
+			panic(err)
+		}
+	}
 
-	// string's first char is not a number?
-	// if a is not a number and b is a number, b > 0
-	if !unicode.IsNumber(firstRuneA) && unicode.IsNumber(firstRuneB) {
-		return -1
+	// strings, compared to numbers, are equal to 0.
+	// strings, compared to 0, are greater than 0.
+	if !emptyA && emptyB {
+		// a is number, b is not a number
+
+		if aNum <= 0 {
+			return -1
+		} else {
+			return 1
+		}
 	}
-	if !unicode.IsNumber(firstRuneB) && unicode.IsNumber(firstRuneA) {
-		return 1
+	if !emptyB && emptyA {
+		// b is number, a is not a number
+		if bNum <= 0 {
+			return 1
+		} else {
+			return -1
+		}
 	}
-	if !unicode.IsNumber(firstRuneA) && !unicode.IsNumber(firstRuneB) {
-		return defSort(a, b, col)
+
+	// string, compared to another string, is sorted alphabetically
+	if emptyA && emptyB {
+		return defSort(a.source, b.source, col)
 	}
 
 	// both are numbers
-	aNum, err := strconv.Atoi(a)
-	if err != nil {
-		panic(err)
-	}
-	bNum, err := strconv.Atoi(b)
-	if err != nil {
-		panic(err)
-	}
-
 	if aNum < bNum {
 		return -1
 	} else if aNum > bNum {
-		return +1
+		return 1
 	} else {
-		return 0
+		// if both numbers are equal, their full strings are sorted alphabetically
+		return defSort(a.source, b.source, col)
 	}
 }
 

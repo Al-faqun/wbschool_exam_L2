@@ -20,14 +20,14 @@ func TestUnpackValid(t *testing.T) {
 		{
 			name:     "Column sort",
 			options:  SortOptions{col: 2},
-			input:    "Manjaro 300\nMint 400\nNoSecondColumn\nelementary 200\nUbuntu 100",
-			expected: "NoSecondColumn\nUbuntu 100\nelementary 200\nManjaro 300\nMint 400",
+			input:    "Manjaro 300\nArch 100\nMint 400\nNoSecondColumn\nelementary 200\nUbuntu -100",
+			expected: "NoSecondColumn\nUbuntu -100\nArch 100\nelementary 200\nManjaro 300\nMint 400",
 		},
 		{
 			name:     "Numeric sort",
 			options:  SortOptions{isNum: true},
 			input:    "1\n0\n10\n 10\n-10\n10ab\n10ac\n10 0\n100\n elementary\n2\n21\n23\n3\n432\nUbuntu\nelementary",
-			expected: "-10\n0\nelementary\nUbuntu\n1\n2\n3\n 10\n10\n10 0\n10ab\n10ac\n21\n23\n100\n432",
+			expected: "-10\n0\n elementary\nelementary\nUbuntu\n1\n2\n3\n 10\n10\n10 0\n10ab\n10ac\n21\n23\n100\n432",
 		},
 		{
 			name:     "Reverse sort",
