@@ -1,6 +1,5 @@
 package main
 
-
 /*
 === Утилита sort ===
 
@@ -26,10 +25,21 @@ package main
 Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
+import (
+	"bufio"
+	"flag"
+	"fmt"
+	"os"
+	"strings"
+	"wbschool_exam_L2/develop/dev03/sort"
+)
+
 const SEP = "\n"
 
 /*
-* Если указаны четыре ключа (-k, -n, -r, -u)
+* Формат запуска: ./app <flags> file_path
+* Пример: ./dev03 -n extra/numsort.txt
+
 * k: pre + algo
 * n: pre + algo
 * r: algo
@@ -41,11 +51,43 @@ const SEP = "\n"
 * 3. r - какой бы алгоритм мы не выбрали, применяем к нему реверс
 * 4. u - убираем дубликаты после сортировки (применяем фильтр к сортируемому значению)
 *
-/* Does not support windows separators for simplicity
+/* Does not support win separators for simplicity
 */
 func main() {
-	// todo parse flags
+	// parse flags
+	kPtr := flag.Int("k", 0, "Sort by column")
+	nPtr := flag.Bool("n", false, "Sort as numbers")
+	rPtr := flag.Bool("r", false, "Sort in reverse order")
+	uPtr := flag.Bool("u", false, "Remove duplicates")
+
+	flag.Parse()
+	options := sort.SortOptions{Col: *kPtr, IsNum: *nPtr, IsRev: *rPtr, IsRemDub: *uPtr}
+
 	// read file
+	args := os.Args[1:]
+
+	if len(args) == 0 {
+		panic("No file is provided")
+	}
+
+	data, err := os.ReadFile(args[len(args)-1])
+	if err != nil {
+		panic(err)
+	}
+
+	lines := strings.Split(string(data), SEP)
+
 	// sort
+	sorted, err := sort.Sort(lines, options)
+
+	if err != nil {
+		panic(err)
+	}
+
 	// output result to stdout
+	w := bufio.NewWriter(os.Stdout)
+	for _, l := range sorted {
+		w.WriteString(fmt.Sprintf("%s\n", l))
+	}
+	w.Flush()
 }

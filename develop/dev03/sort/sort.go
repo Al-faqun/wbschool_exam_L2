@@ -9,21 +9,17 @@ import (
 	"strings"
 )
 
-const SEP = "\n"
-
-func Sort(input string, options SortOptions) (string, error) {
-	lines := strings.Split(input, SEP)
-
+func Sort(lines []string, options SortOptions) ([]string, error) {
 	col := createCol(options)
 
 	sortables, err := prepare(lines, options)
 	if err != nil {
-		return "", err
+		return []string{}, err
 	}
 
 	sortFunc, err := getSortFunc(options, col)
 	if err != nil {
-		return "", err
+		return []string{}, err
 	}
 
 	if !slices.IsSortedFunc(sortables, sortFunc) {
@@ -36,7 +32,11 @@ func Sort(input string, options SortOptions) (string, error) {
 		})
 	}
 
-	return joinSortables(sortables), nil
+	result := []string{}
+	for _, sortable := range sortables {
+		result = append(result, sortable.Source)
+	}
+	return result, nil
 }
 
 func prepare(lines []string, options SortOptions) ([]*Sortable, error) {
@@ -175,14 +175,6 @@ func numSort(a *Sortable, b *Sortable, col *collate.Collator) int {
 		// if both numbers are equal, their full strings are sorted alphabetically
 		return defSort(a.Source, b.Source, col)
 	}
-}
-
-func joinSortables(sortables []*Sortable) string {
-	lines := []string{}
-	for _, sortable := range sortables {
-		lines = append(lines, sortable.Source)
-	}
-	return strings.Join(lines, SEP)
 }
 
 func createCol(options SortOptions) *collate.Collator {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"testing"
 	"wbschool_exam_L2/develop/dev03/sort"
 )
@@ -58,14 +59,18 @@ func TestUnpackValid(t *testing.T) {
 
 	for _, data := range dataValid {
 		t.Run(data.name, func(t *testing.T) {
-			actual, err := sort.Sort(data.input, data.options)
+			input := strings.Split(data.input, SEP)
+
+			actual, err := sort.Sort(input, data.options)
 
 			if err != nil {
 				t.Fatalf("Unexpected error: '%q'\n", err.Error())
 			}
 
-			if actual != data.expected {
-				t.Fatalf("Actual result '%+q' is not equal to expected '%+q'\n", actual, data.expected)
+			actualString := strings.Join(actual, SEP)
+
+			if actualString != data.expected {
+				t.Fatalf("Actual result '%+q' is not equal to expected '%+q'\n", actualString, data.expected)
 			}
 		})
 	}
